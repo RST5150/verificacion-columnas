@@ -1,10 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { Save } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
+import AppHeader from '@/components/layout/AppHeader'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 import OrdenHeaderForm from '@/components/ordenes/OrdenHeaderForm'
 import ColumnaRowForm from '@/components/ordenes/ColumnaRowForm'
 import ColumnasTable from '@/components/ordenes/ColumnasTable'
@@ -100,44 +103,49 @@ export default function NuevaOrdenPage() {
   if (loading || !session) return null
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Nueva orden de servicio</h1>
-        <div className="flex items-center gap-4">
-          <Link href="/ordenes" className="text-sm text-blue-700 hover:underline dark:text-blue-400">
-            Ver órdenes cargadas
-          </Link>
-          <UserBar email={session.user.email} profile={profile} />
-        </div>
-      </div>
+    <>
+      <AppHeader
+        title="Nueva orden de servicio"
+        backHref="/ordenes"
+        backLabel="Ver órdenes cargadas"
+        actions={<UserBar email={session.user.email} profile={profile} />}
+      />
+      <main className="mx-auto max-w-5xl space-y-6 p-6">
+        {success && (
+          <p className="rounded-fluent border border-success bg-success-surface px-4 py-2 text-sm text-success">
+            Orden guardada correctamente.
+          </p>
+        )}
+        {error && (
+          <p className="rounded-fluent border border-danger bg-danger-surface px-4 py-2 text-sm text-danger">
+            {error}
+          </p>
+        )}
 
-      {success && (
-        <p className="rounded border border-green-300 bg-green-50 px-4 py-2 text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300">
-          Orden guardada correctamente.
-        </p>
-      )}
-      {error && (
-        <p className="rounded border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
+        <Card title="1. Datos de la orden">
+          <div className="flex flex-col gap-4">
+            <OrdenHeaderForm value={header} onChange={setHeader} />
+            <ZonaForm value={footer} onChange={setFooter} />
+          </div>
+        </Card>
 
-      <OrdenHeaderForm value={header} onChange={setHeader} />
+        <Card title="2. Agregar columna inspeccionada">
+          <ColumnaRowForm onAdd={handleAddRow} />
+        </Card>
 
-      <ColumnaRowForm onAdd={handleAddRow} />
+        <Card title={`3. Columnas cargadas (${rows.length})`}>
+          <ColumnasTable rows={rows} onRemove={handleRemoveRow} />
+        </Card>
 
-      <ColumnasTable rows={rows} onRemove={handleRemoveRow} />
-
-      <ZonaForm value={footer} onChange={setFooter} />
-
-      <button
-        type="button"
-        disabled={!isValid || submitting}
-        onClick={handleSubmit}
-        className="rounded bg-blue-700 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
-      >
-        {submitting ? 'Guardando…' : 'Guardar orden de servicio'}
-      </button>
-    </main>
+        <Button
+          variant="primary"
+          disabled={!isValid || submitting}
+          onClick={handleSubmit}
+          icon={<Save className="h-4 w-4" />}
+        >
+          {submitting ? 'Guardando…' : 'Guardar orden de servicio'}
+        </Button>
+      </main>
+    </>
   )
 }

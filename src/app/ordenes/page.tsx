@@ -1,10 +1,15 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
+import { Trash2, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
+import AppHeader from '@/components/layout/AppHeader'
+import Card from '@/components/ui/Card'
+import TextField from '@/components/ui/TextField'
+import Select from '@/components/ui/Select'
+import StatusBadge from '@/components/ui/StatusBadge'
 import { CONDICION_FIELDS, ZONA_OPTIONS, type ConditionKey } from '@/types/forms'
 import { formatFechaDDMMAAAA } from '@/lib/format'
 import type { Database } from '@/types/database'
@@ -109,188 +114,219 @@ export default function OrdenesListPage() {
   }, [rows, search, fechaDesde, fechaHasta, zonaFilter, condicionFilters])
 
   const columnCount = 6 + CONDICION_FIELDS.length + 2
+  const hasActiveFilters =
+    !!search ||
+    !!fechaDesde ||
+    !!fechaHasta ||
+    zonaFilter !== 'todos' ||
+    Object.values(condicionFilters).some((v) => v !== 'todos')
+
+  const clearFilters = () => {
+    setSearch('')
+    setFechaDesde('')
+    setFechaHasta('')
+    setZonaFilter('todos')
+    setCondicionFilters(emptyCondicionFilters)
+  }
 
   if (authLoading || !session) return null
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Órdenes de servicio cargadas</h1>
-        <div className="flex items-center gap-4">
-          <Link
-            href="/ordenes/nueva"
-            className="rounded bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
-          >
-            Cargar nueva orden
-          </Link>
-          <UserBar email={session.user.email} profile={profile} />
-        </div>
-      </div>
-
-      {error && (
-        <p className="rounded border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
-          {error}
-        </p>
-      )}
-
-      <div className="space-y-4 rounded border border-gray-300 p-4 dark:border-gray-700">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <label className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
-            Buscar (orden, calle, columna, observaciones)
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="PELLEGRINI"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
-            Zona
-            <select
-              value={zonaFilter}
-              onChange={(e) => setZonaFilter(e.target.value)}
-              className="rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-            >
-              <option value="todos">Todas</option>
-              {ZONA_OPTIONS.map((zona) => (
-                <option key={zona} value={zona}>
-                  {zona}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
-            Fecha desde
-            <input
-              type="date"
-              value={fechaDesde}
-              onChange={(e) => setFechaDesde(e.target.value)}
-              className="rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:[color-scheme:dark]"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
-            Fecha hasta
-            <input
-              type="date"
-              value={fechaHasta}
-              onChange={(e) => setFechaHasta(e.target.value)}
-              className="rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:[color-scheme:dark]"
-            />
-          </label>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {CONDICION_FIELDS.map((f) => (
-            <label key={f.key} className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
-              {f.label}
-              <select
-                value={condicionFilters[f.key]}
-                onChange={(e) =>
-                  setCondicionFilters({ ...condicionFilters, [f.key]: e.target.value as CondicionFilter })
-                }
-                className="rounded border border-gray-300 px-2 py-1 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-              >
-                <option value="todos">Todos</option>
-                <option value="si">Sí</option>
-                <option value="no">No</option>
-              </select>
-            </label>
-          ))}
-        </div>
-
-        {(search ||
-          fechaDesde ||
-          fechaHasta ||
-          zonaFilter !== 'todos' ||
-          Object.values(condicionFilters).some((v) => v !== 'todos')) && (
-          <button
-            type="button"
-            onClick={() => {
-              setSearch('')
-              setFechaDesde('')
-              setFechaHasta('')
-              setZonaFilter('todos')
-              setCondicionFilters(emptyCondicionFilters)
-            }}
-            className="text-sm text-blue-700 hover:underline dark:text-blue-400"
-          >
-            Limpiar filtros
-          </button>
-        )}
-      </div>
-
-      {loading ? (
-        <p className="text-sm text-gray-500 dark:text-gray-400">Cargando…</p>
-      ) : (
-        <>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {filteredRows.length} de {rows.length} columnas
+    <>
+      <AppHeader
+        title="Órdenes de servicio cargadas"
+        backHref="/"
+        backLabel="Inicio"
+        actions={<UserBar email={session.user.email} profile={profile} />}
+      />
+      <main className="mx-auto max-w-7xl space-y-6 p-6">
+        {error && (
+          <p className="rounded-fluent border border-danger bg-danger-surface px-4 py-2 text-sm text-danger">
+            {error}
           </p>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse text-sm">
-              <thead>
-                <tr className="bg-gray-100 text-left dark:bg-gray-800">
-                  <th className="border px-2 py-1 dark:border-gray-700">Orden</th>
-                  <th className="border px-2 py-1 dark:border-gray-700">Fecha</th>
-                  <th className="border px-2 py-1 dark:border-gray-700">Zona</th>
-                  <th className="border px-2 py-1 dark:border-gray-700">Calle</th>
-                  <th className="border px-2 py-1 dark:border-gray-700">Altura</th>
-                  <th className="border px-2 py-1 dark:border-gray-700">N° columna</th>
-                  {CONDICION_FIELDS.map((f) => (
-                    <th key={f.key} className="border px-2 py-1 dark:border-gray-700">
-                      {f.label}
-                    </th>
-                  ))}
-                  <th className="border px-2 py-1 dark:border-gray-700">Observaciones</th>
-                  <th className="border px-2 py-1 dark:border-gray-700"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRows.map((row) => (
-                  <tr key={row.id}>
-                    <td className="border px-2 py-1 dark:border-gray-700">{row.orden?.orden_de_servicio}</td>
-                    <td className="border px-2 py-1 dark:border-gray-700">
-                      {formatFechaDDMMAAAA(row.orden?.fecha)}
-                    </td>
-                    <td className="border px-2 py-1 dark:border-gray-700">{row.orden?.zona}</td>
-                    <td className="border px-2 py-1 dark:border-gray-700">{row.calle}</td>
-                    <td className="border px-2 py-1 dark:border-gray-700">{row.altura}</td>
-                    <td className="border px-2 py-1 dark:border-gray-700">{row.n_columna}</td>
-                    {CONDICION_FIELDS.map((f) => (
-                      <td key={f.key} className="border px-2 py-1 dark:border-gray-700">
-                        {row[f.key] ? 'SI' : 'NO'}
-                      </td>
-                    ))}
-                    <td className="border px-2 py-1 dark:border-gray-700">{row.observaciones}</td>
-                    <td className="border px-2 py-1 dark:border-gray-700">
-                      {canDelete(row) && (
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(row)}
-                          className="text-red-600 hover:underline dark:text-red-400"
-                        >
-                          Eliminar
-                        </button>
-                      )}
-                    </td>
-                  </tr>
+        )}
+
+        <Card title="Filtros">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <TextField
+                label="Buscar (orden, calle, columna, observaciones)"
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="PELLEGRINI"
+              />
+              <Select label="Zona" value={zonaFilter} onChange={(e) => setZonaFilter(e.target.value)}>
+                <option value="todos">Todas</option>
+                {ZONA_OPTIONS.map((zona) => (
+                  <option key={zona} value={zona}>
+                    {zona}
+                  </option>
                 ))}
-                {filteredRows.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={columnCount}
-                      className="border px-2 py-4 text-center text-gray-500 dark:border-gray-700 dark:text-gray-400"
-                    >
-                      No se encontraron resultados.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+              </Select>
+              <TextField
+                label="Fecha desde"
+                type="date"
+                value={fechaDesde}
+                onChange={(e) => setFechaDesde(e.target.value)}
+              />
+              <TextField
+                label="Fecha hasta"
+                type="date"
+                value={fechaHasta}
+                onChange={(e) => setFechaHasta(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {CONDICION_FIELDS.map((f) => (
+                <Select
+                  key={f.key}
+                  label={f.label}
+                  value={condicionFilters[f.key]}
+                  onChange={(e) =>
+                    setCondicionFilters({ ...condicionFilters, [f.key]: e.target.value as CondicionFilter })
+                  }
+                >
+                  <option value="todos">Todos</option>
+                  <option value="si">Sí</option>
+                  <option value="no">No</option>
+                </Select>
+              ))}
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
+              >
+                <X className="h-3.5 w-3.5" />
+                Limpiar filtros
+              </button>
+            )}
           </div>
-        </>
-      )}
-    </main>
+        </Card>
+
+        {loading ? (
+          <p className="text-sm text-foreground/60">Cargando…</p>
+        ) : (
+          <>
+            <p className="text-sm text-foreground/60">
+              {filteredRows.length} de {rows.length} columnas
+            </p>
+
+            {/* Mobile: card list */}
+            <div className="space-y-3 sm:hidden">
+              {filteredRows.length === 0 && (
+                <p className="rounded-fluent border border-border bg-surface p-4 text-center text-sm text-foreground/60">
+                  No se encontraron resultados.
+                </p>
+              )}
+              {filteredRows.map((row) => (
+                <Card key={row.id}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-foreground">
+                        {row.calle} {row.altura}
+                      </p>
+                      <p className="text-xs text-foreground/60">
+                        N° {row.n_columna} · Orden {row.orden?.orden_de_servicio} ·{' '}
+                        {formatFechaDDMMAAAA(row.orden?.fecha)} · {row.orden?.zona}
+                      </p>
+                    </div>
+                    {canDelete(row) && (
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(row)}
+                        aria-label="Eliminar columna"
+                        className="text-danger hover:opacity-70"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {CONDICION_FIELDS.map((f) => (
+                      <span key={f.key} className="flex items-center gap-1 text-xs text-foreground/70">
+                        {f.label}: <StatusBadge value={row[f.key]} />
+                      </span>
+                    ))}
+                  </div>
+                  {row.observaciones && (
+                    <p className="mt-3 text-sm text-foreground/70">{row.observaciones}</p>
+                  )}
+                </Card>
+              ))}
+            </div>
+
+            {/* Desktop: table */}
+            <div className="hidden overflow-x-auto rounded-fluent border border-border sm:block">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="bg-surface-alt text-left">
+                    <th className="px-3 py-2 font-semibold">Orden</th>
+                    <th className="px-3 py-2 font-semibold">Fecha</th>
+                    <th className="px-3 py-2 font-semibold">Zona</th>
+                    <th className="px-3 py-2 font-semibold">Calle</th>
+                    <th className="px-3 py-2 font-semibold">Altura</th>
+                    <th className="px-3 py-2 font-semibold">N° columna</th>
+                    {CONDICION_FIELDS.map((f) => (
+                      <th key={f.key} className="px-3 py-2 font-semibold">
+                        {f.label}
+                      </th>
+                    ))}
+                    <th className="px-3 py-2 font-semibold">Observaciones</th>
+                    <th className="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredRows.map((row, i) => (
+                    <tr key={row.id} className={i % 2 === 1 ? 'bg-surface-alt/50' : ''}>
+                      <td className="border-t border-border px-3 py-2">{row.orden?.orden_de_servicio}</td>
+                      <td className="border-t border-border px-3 py-2">
+                        {formatFechaDDMMAAAA(row.orden?.fecha)}
+                      </td>
+                      <td className="border-t border-border px-3 py-2">{row.orden?.zona}</td>
+                      <td className="border-t border-border px-3 py-2">{row.calle}</td>
+                      <td className="border-t border-border px-3 py-2">{row.altura}</td>
+                      <td className="border-t border-border px-3 py-2">{row.n_columna}</td>
+                      {CONDICION_FIELDS.map((f) => (
+                        <td key={f.key} className="border-t border-border px-3 py-2">
+                          <StatusBadge value={row[f.key]} />
+                        </td>
+                      ))}
+                      <td className="border-t border-border px-3 py-2">{row.observaciones}</td>
+                      <td className="border-t border-border px-3 py-2">
+                        {canDelete(row) && (
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(row)}
+                            aria-label="Eliminar columna"
+                            className="text-danger hover:opacity-70"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredRows.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={columnCount}
+                        className="border-t border-border px-2 py-4 text-center text-foreground/60"
+                      >
+                        No se encontraron resultados.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </main>
+    </>
   )
 }

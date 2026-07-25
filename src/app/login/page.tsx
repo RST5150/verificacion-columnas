@@ -2,9 +2,13 @@
 
 import { useEffect, useState, type FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
+import { LogIn } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useSession } from '@/lib/auth'
 import ThemeToggle from '@/components/theme/ThemeToggle'
+import Card from '@/components/ui/Card'
+import TextField from '@/components/ui/TextField'
+import Button from '@/components/ui/Button'
 
 export default function LoginPage() {
   const { session, loading } = useSession()
@@ -38,45 +42,42 @@ export default function LoginPage() {
   if (loading || session) return null
 
   return (
-    <main className="mx-auto flex max-w-sm flex-col gap-6 p-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Iniciar sesión</h1>
-        <ThemeToggle />
-      </div>
+    <main className="flex min-h-screen items-center justify-center bg-background p-6">
+      <Card className="w-full max-w-sm">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-lg font-semibold text-foreground">Iniciar sesión</h1>
+          <ThemeToggle />
+        </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
-          Email
-          <input
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <TextField
+            label="Email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
           />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm text-gray-600 dark:text-gray-400">
-          Contraseña
-          <input
+          <TextField
+            label="Contraseña"
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="rounded border border-gray-300 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
           />
-        </label>
 
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:bg-gray-300 dark:bg-blue-600 dark:hover:bg-blue-500 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
-        >
-          {submitting ? 'Ingresando…' : 'Ingresar'}
-        </button>
-      </form>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={submitting}
+            icon={<LogIn className="h-4 w-4" />}
+            className="justify-center"
+          >
+            {submitting ? 'Ingresando…' : 'Ingresar'}
+          </Button>
+        </form>
+      </Card>
     </main>
   )
 }

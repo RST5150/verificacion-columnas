@@ -3,24 +3,57 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f2f1;
+  --foreground: #201f1e;
+  --surface: #ffffff;
+  --surface-alt: #faf9f8;
+  --border: #e1dfdd;
+  --accent: #0078d4;
+  --accent-hover: #106ebe;
+  --accent-foreground: #ffffff;
+  --success: #107c10;
+  --success-surface: #dff6dd;
+  --danger: #d13438;
+  --danger-surface: #fde7e9;
+  --radius: 6px;
+  --font-segoe: "Segoe UI Variable", "Segoe UI", -apple-system, system-ui, "Helvetica Neue", Arial,
+    "Segoe UI Emoji", sans-serif;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --background: #1b1a19;
+  --foreground: #f3f2f1;
+  --surface: #292827;
+  --surface-alt: #201f1e;
+  --border: #3b3a39;
+  --accent: #4cc2ff;
+  --accent-hover: #6fcdff;
+  --accent-foreground: #0a0a0a;
+  --success: #6ccb5f;
+  --success-surface: #123a1a;
+  --danger: #f1707b;
+  --danger-surface: #3b1315;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-surface: var(--success-surface);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --radius-fluent: var(--radius);
+  --font-sans: var(--font-segoe);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-segoe);
 }

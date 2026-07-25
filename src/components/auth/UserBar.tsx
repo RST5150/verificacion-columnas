@@ -1,7 +1,9 @@
 'use client'
 
+import { LogOut } from 'lucide-react'
 import { useSignOut } from '@/lib/auth'
 import ThemeToggle from '@/components/theme/ThemeToggle'
+import Button from '@/components/ui/Button'
 import type { Database } from '@/types/database'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -15,20 +17,14 @@ export default function UserBar({ email, profile }: Props) {
   const signOut = useSignOut()
 
   return (
-    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
+    <div className="flex items-center gap-3 text-sm text-foreground/70">
       <span>
         {email}
-        {profile?.role === 'admin' && (
-          <span className="ml-1 font-semibold text-blue-700 dark:text-blue-400">(admin)</span>
-        )}
+        {profile?.role === 'admin' && <span className="ml-1 font-semibold text-accent">(admin)</span>}
       </span>
-      <button
-        type="button"
-        onClick={() => signOut()}
-        className="text-blue-700 hover:underline dark:text-blue-400"
-      >
+      <Button variant="ghost" icon={<LogOut className="h-4 w-4" />} onClick={() => signOut()}>
         Cerrar sesión
-      </button>
+      </Button>
       <ThemeToggle />
     </div>
   )
