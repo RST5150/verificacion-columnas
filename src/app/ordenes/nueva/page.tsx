@@ -30,11 +30,14 @@ export default function NuevaOrdenPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const isValid =
-    header.orden_de_servicio.trim() !== '' &&
-    header.fecha !== '' &&
-    footer.zona.trim() !== '' &&
-    rows.length > 0
+  const missingFields = [
+    header.orden_de_servicio.trim() === '' && 'orden de servicio',
+    header.fecha === '' && 'fecha',
+    footer.zona.trim() === '' && 'zona',
+    rows.length === 0 && 'agregar al menos una columna (botón "Agregar columna")',
+  ].filter((v): v is string => v !== false)
+
+  const isValid = missingFields.length === 0
 
   const handleAddRow = (row: ColumnaRow) => {
     setRows((prev) => [...prev, row])
@@ -137,14 +140,19 @@ export default function NuevaOrdenPage() {
           <ColumnasTable rows={rows} onRemove={handleRemoveRow} />
         </Card>
 
-        <Button
-          variant="primary"
-          disabled={!isValid || submitting}
-          onClick={handleSubmit}
-          icon={<Save className="h-4 w-4" />}
-        >
-          {submitting ? 'Guardando…' : 'Guardar orden de servicio'}
-        </Button>
+        <div className="flex flex-col items-start gap-2">
+          <Button
+            variant="primary"
+            disabled={!isValid || submitting}
+            onClick={handleSubmit}
+            icon={<Save className="h-4 w-4" />}
+          >
+            {submitting ? 'Guardando…' : 'Guardar orden de servicio'}
+          </Button>
+          {!isValid && (
+            <p className="text-sm text-foreground/60">Falta completar: {missingFields.join(', ')}.</p>
+          )}
+        </div>
       </main>
     </>
   )
