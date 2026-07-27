@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Trash2, X } from 'lucide-react'
+import { FileSpreadsheet, FileText, Trash2, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
@@ -10,8 +10,10 @@ import Card from '@/components/ui/Card'
 import TextField from '@/components/ui/TextField'
 import Select from '@/components/ui/Select'
 import StatusBadge from '@/components/ui/StatusBadge'
+import Button from '@/components/ui/Button'
 import { CONDICION_FIELDS, ZONA_OPTIONS, type ConditionKey } from '@/types/forms'
 import { formatFechaDDMMAAAA } from '@/lib/format'
+import { exportColumnasToCsv, exportColumnasToXlsx } from '@/lib/export'
 import type { Database } from '@/types/database'
 
 type OrdenRow = Database['public']['Tables']['ordenes_servicio']['Row']
@@ -212,9 +214,29 @@ export default function OrdenesListPage() {
           <p className="text-sm text-foreground/60">Cargando…</p>
         ) : (
           <>
-            <p className="text-sm text-foreground/60">
-              {filteredRows.length} de {rows.length} columnas
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-foreground/60">
+                {filteredRows.length} de {rows.length} columnas
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  icon={<FileSpreadsheet className="h-4 w-4" />}
+                  disabled={filteredRows.length === 0}
+                  onClick={() => exportColumnasToXlsx(filteredRows)}
+                >
+                  Descargar .xlsx
+                </Button>
+                <Button
+                  variant="secondary"
+                  icon={<FileText className="h-4 w-4" />}
+                  disabled={filteredRows.length === 0}
+                  onClick={() => exportColumnasToCsv(filteredRows)}
+                >
+                  Descargar .csv
+                </Button>
+              </div>
+            </div>
 
             {/* Mobile: card list */}
             <div className="space-y-3 sm:hidden">
