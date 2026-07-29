@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Save } from 'lucide-react'
-import { supabase } from '@/lib/supabase/client'
+import { postToAppsScript } from '@/lib/sheets/write'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
 import AppHeader from '@/components/layout/AppHeader'
@@ -51,50 +51,38 @@ export default function NuevaOrdenPage() {
   }
 
   const handleSubmit = async () => {
-    if (!isValid) return
+    if (!isValid || !session) return
     setSubmitting(true)
     setError(null)
 
-    const { data: orden, error: ordenError } = await supabase
-      .from('ordenes_servicio')
-      .insert({
-        orden_de_servicio: header.orden_de_servicio.trim(),
-        localidad: LOCALIDAD_FIJA,
-        fecha: header.fecha,
-        zona: footer.zona,
+    try {
+      await postToAppsScript({
+        idToken: session.idToken,
+        action: 'create_orden',
+        orden: {
+          orden_de_servicio: header.orden_de_servicio.trim(),
+          localidad: LOCALIDAD_FIJA,
+          fecha: header.fecha,
+          zona: footer.zona,
+        },
+        columnas: rows.map((r) => ({
+          calle: r.calle,
+          altura: r.altura,
+          n_columna: r.n_columna,
+          tapa: r.tapa,
+          aplomada: r.aplomada,
+          pintura: r.pintura,
+          oxidada: r.oxidada,
+          picada_por_oxido: r.picada_por_oxido,
+          perforada_desprendimiento: r.perforada_desprendimiento,
+          pat: r.pat,
+          prot_diferencial: r.prot_diferencial,
+          prot_contacto_directo: r.prot_contacto_directo,
+          observaciones: r.observaciones || null,
+        })),
       })
-      .select()
-      .single()
-
-    if (ordenError || !orden) {
-      setError(`No se pudo guardar la orden de servicio: ${ordenError?.message}`)
-      setSubmitting(false)
-      return
-    }
-
-    const { error: rowsError } = await supabase.from('columnas_inspeccionadas').insert(
-      rows.map((r) => ({
-        orden_servicio_id: orden.id,
-        calle: r.calle,
-        altura: r.altura,
-        n_columna: r.n_columna,
-        tapa: r.tapa,
-        aplomada: r.aplomada,
-        pintura: r.pintura,
-        oxidada: r.oxidada,
-        picada_por_oxido: r.picada_por_oxido,
-        perforada_desprendimiento: r.perforada_desprendimiento,
-        pat: r.pat,
-        prot_diferencial: r.prot_diferencial,
-        prot_contacto_directo: r.prot_contacto_directo,
-        observaciones: r.observaciones || null,
-      }))
-    )
-
-    if (rowsError) {
-      // La orden ya quedó guardada sin columnas; se puede completar a mano
-      // desde el editor de tablas de Supabase o reintentando la carga de filas.
-      setError(`La orden se guardó, pero no se pudieron guardar las columnas: ${rowsError.message}`)
+    } catch (err) {
+      setError(`No se pudo guardar la orden de servicio: ${(err as Error).message}`)
       setSubmitting(false)
       return
     }

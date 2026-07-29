@@ -4,9 +4,9 @@ import { LogOut } from 'lucide-react'
 import { useSignOut } from '@/lib/auth'
 import ThemeToggle from '@/components/theme/ThemeToggle'
 import Button from '@/components/ui/Button'
-import type { Database } from '@/types/database'
+import type { Usuario } from '@/types/sheets'
 
-type Profile = Database['public']['Tables']['profiles']['Row']
+type Profile = Usuario
 
 interface Props {
   email: string | undefined

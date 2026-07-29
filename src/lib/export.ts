@@ -3,10 +3,10 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { CONDICION_FIELDS } from '@/types/forms'
 import { formatFechaDDMMAAAA } from '@/lib/format'
-import type { Database } from '@/types/database'
+import type { OrdenServicio, ColumnaInspeccionada } from '@/types/sheets'
 
-type OrdenRow = Database['public']['Tables']['ordenes_servicio']['Row']
-type ColumnaRowDb = Database['public']['Tables']['columnas_inspeccionadas']['Row']
+type OrdenRow = OrdenServicio
+type ColumnaRowDb = ColumnaInspeccionada
 
 interface ColumnaConOrden extends ColumnaRowDb {
   orden: OrdenRow | undefined

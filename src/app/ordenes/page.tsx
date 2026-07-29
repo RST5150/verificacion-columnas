@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { FileDown, FileSpreadsheet, FileText, Trash2, X } from 'lucide-react'
-import { supabase } from '@/lib/supabase/client'
+import { CONFIG } from '@/lib/config'
+import { fetchSheetRows } from '@/lib/sheets/read'
+import { postToAppsScript } from '@/lib/sheets/write'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
 import AppHeader from '@/components/layout/AppHeader'
@@ -15,10 +17,10 @@ import Button from '@/components/ui/Button'
 import { CONDICION_FIELDS, ZONA_OPTIONS, type ConditionKey } from '@/types/forms'
 import { formatFechaDDMMAAAA } from '@/lib/format'
 import { exportColumnasToCsv, exportColumnasToPdf, exportColumnasToXlsx } from '@/lib/export'
-import type { Database } from '@/types/database'
+import type { OrdenServicio, ColumnaInspeccionada } from '@/types/sheets'
 
-type OrdenRow = Database['public']['Tables']['ordenes_servicio']['Row']
-type ColumnaRowDb = Database['public']['Tables']['columnas_inspeccionadas']['Row']
+type OrdenRow = OrdenServicio
+type ColumnaRowDb = ColumnaInspeccionada
 
 interface ColumnaConOrden extends ColumnaRowDb {
   orden: OrdenRow | undefined
@@ -51,40 +53,43 @@ export default function OrdenesListPage() {
       setLoading(true)
       setError(null)
 
-      const [ordenesRes, columnasRes] = await Promise.all([
-        supabase.from('ordenes_servicio').select('*'),
-        supabase.from('columnas_inspeccionadas').select('*'),
-      ])
+      try {
+        const [ordenes, columnas] = await Promise.all([
+          fetchSheetRows<OrdenRow>(CONFIG.ordenesCsvUrl, { numberFields: ['id'] }),
+          fetchSheetRows<ColumnaRowDb>(CONFIG.columnasCsvUrl, {
+            numberFields: ['id', 'orden_servicio_id', 'altura'],
+            booleanFields: CONDICION_FIELDS.map((f) => f.key),
+          }),
+        ])
 
-      if (ordenesRes.error || columnasRes.error) {
-        setError(ordenesRes.error?.message ?? columnasRes.error?.message ?? 'Error al cargar los datos.')
+        const ordenesById = new Map(ordenes.map((o) => [o.id, o]))
+        const joined = columnas
+          .map((c) => ({ ...c, orden: ordenesById.get(c.orden_servicio_id) }))
+          .sort((a, b) => b.id - a.id)
+
+        setRows(joined)
+      } catch (err) {
+        setError((err as Error).message ?? 'Error al cargar los datos.')
+      } finally {
         setLoading(false)
-        return
       }
-
-      const ordenesById = new Map((ordenesRes.data ?? []).map((o) => [o.id, o]))
-      const joined = (columnasRes.data ?? [])
-        .map((c) => ({ ...c, orden: ordenesById.get(c.orden_servicio_id) }))
-        .sort((a, b) => b.id - a.id)
-
-      setRows(joined)
-      setLoading(false)
     }
 
     load()
   }, [session])
 
   const canDelete = (row: ColumnaConOrden) =>
-    profile?.role === 'admin' || (!!session && row.orden?.created_by === session.user.id)
+    profile?.role === 'admin' || (!!session && row.orden?.created_by === session.user.email)
 
   const handleDelete = async (row: ColumnaConOrden) => {
     const label = `${row.calle} ${row.altura} (${row.n_columna}) — orden ${row.orden?.orden_de_servicio}`
     if (!window.confirm(`¿Eliminar la columna ${label}?`)) return
+    if (!session) return
 
-    const { error } = await supabase.from('columnas_inspeccionadas').delete().eq('id', row.id)
-
-    if (error) {
-      window.alert(`No se pudo eliminar: ${error.message}`)
+    try {
+      await postToAppsScript({ idToken: session.idToken, action: 'delete_columna', id: row.id })
+    } catch (err) {
+      window.alert(`No se pudo eliminar: ${(err as Error).message}`)
       return
     }
 
