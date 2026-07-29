@@ -21,6 +21,8 @@ import {
   type HeaderDraft,
 } from '@/types/forms'
 
+export const dynamic = 'force-dynamic';
+
 export default function NuevaOrdenPage() {
   const { session, profile, loading } = useRequireAuth()
   const [header, setHeader] = useState<HeaderDraft>(emptyHeader)

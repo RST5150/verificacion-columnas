@@ -29,6 +29,8 @@ const emptyCondicionFilters: Record<ConditionKey, CondicionFilter> = Object.from
   CONDICION_FIELDS.map((f) => [f.key, 'todos'])
 ) as Record<ConditionKey, CondicionFilter>
 
+export const dynamic = 'force-dynamic';
+
 export default function OrdenesListPage() {
   const { session, profile, loading: authLoading } = useRequireAuth()
   const [rows, setRows] = useState<ColumnaConOrden[]>([])
