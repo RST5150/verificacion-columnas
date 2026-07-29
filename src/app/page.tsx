@@ -5,11 +5,12 @@ import { ClipboardPlus, ListChecks } from 'lucide-react'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
 import AppHeader from '@/components/layout/AppHeader'
+import AuthState from '@/components/layout/AuthState'
 
 export default function Home() {
-  const { session, profile, loading } = useRequireAuth()
+  const { session, profile, loading, error } = useRequireAuth()
 
-  if (loading || !session) return null
+  if (error || loading || !session) return <AuthState error={error} />
 
   return (
     <>

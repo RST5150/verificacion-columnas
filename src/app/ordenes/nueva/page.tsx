@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
 import AppHeader from '@/components/layout/AppHeader'
+import AuthState from '@/components/layout/AuthState'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import OrdenHeaderForm from '@/components/ordenes/OrdenHeaderForm'
@@ -24,7 +25,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default function NuevaOrdenPage() {
-  const { session, profile, loading } = useRequireAuth()
+  const { session, profile, loading, error: authError } = useRequireAuth()
   const [header, setHeader] = useState<HeaderDraft>(emptyHeader)
   const [footer, setFooter] = useState<FooterDraft>(emptyFooter)
   const [rows, setRows] = useState<ColumnaRow[]>([])
@@ -105,7 +106,7 @@ export default function NuevaOrdenPage() {
     setSubmitting(false)
   }
 
-  if (loading || !session) return null
+  if (authError || loading || !session) return <AuthState error={authError} />
 
   return (
     <>

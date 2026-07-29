@@ -1,4 +1,6 @@
 import * as XLSX from 'xlsx'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
 import { CONDICION_FIELDS } from '@/types/forms'
 import { formatFechaDDMMAAAA } from '@/lib/format'
 import type { Database } from '@/types/database'
@@ -58,4 +60,27 @@ export function exportColumnasToCsv(rows: ColumnaConOrden[], filename = 'columna
   const sheet = XLSX.utils.aoa_to_sheet(rowsToAoa(rows))
   const csv = XLSX.utils.sheet_to_csv(sheet)
   downloadBlob(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }), filename)
+}
+
+export function exportColumnasToPdf(rows: ColumnaConOrden[], filename = 'columnas.pdf') {
+  const [head, ...body] = rowsToAoa(rows)
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+
+  doc.setFontSize(14)
+  doc.text('Órdenes de servicio - columnas inspeccionadas', 14, 15)
+  doc.setFontSize(9)
+  doc.setTextColor(100)
+  doc.text(`Generado el ${new Date().toLocaleDateString('es-AR')}`, 14, 21)
+
+  autoTable(doc, {
+    startY: 26,
+    head: [head],
+    body,
+    styles: { fontSize: 6, cellPadding: 1.5, overflow: 'linebreak' },
+    headStyles: { fillColor: [0, 120, 212], textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [245, 244, 243] },
+    margin: { left: 10, right: 10 },
+  })
+
+  doc.save(filename)
 }

@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { FileSpreadsheet, FileText, Trash2, X } from 'lucide-react'
+import { FileDown, FileSpreadsheet, FileText, Trash2, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
 import AppHeader from '@/components/layout/AppHeader'
+import AuthState from '@/components/layout/AuthState'
 import Card from '@/components/ui/Card'
 import TextField from '@/components/ui/TextField'
 import Select from '@/components/ui/Select'
@@ -13,7 +14,7 @@ import StatusBadge from '@/components/ui/StatusBadge'
 import Button from '@/components/ui/Button'
 import { CONDICION_FIELDS, ZONA_OPTIONS, type ConditionKey } from '@/types/forms'
 import { formatFechaDDMMAAAA } from '@/lib/format'
-import { exportColumnasToCsv, exportColumnasToXlsx } from '@/lib/export'
+import { exportColumnasToCsv, exportColumnasToPdf, exportColumnasToXlsx } from '@/lib/export'
 import type { Database } from '@/types/database'
 
 type OrdenRow = Database['public']['Tables']['ordenes_servicio']['Row']
@@ -32,7 +33,7 @@ const emptyCondicionFilters: Record<ConditionKey, CondicionFilter> = Object.from
 export const dynamic = 'force-dynamic';
 
 export default function OrdenesListPage() {
-  const { session, profile, loading: authLoading } = useRequireAuth()
+  const { session, profile, loading: authLoading, error: authError } = useRequireAuth()
   const [rows, setRows] = useState<ColumnaConOrden[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -133,7 +134,7 @@ export default function OrdenesListPage() {
     setCondicionFilters(emptyCondicionFilters)
   }
 
-  if (authLoading || !session) return null
+  if (authError || authLoading || !session) return <AuthState error={authError} />
 
   return (
     <>
@@ -236,6 +237,14 @@ export default function OrdenesListPage() {
                   onClick={() => exportColumnasToCsv(filteredRows)}
                 >
                   Descargar .csv
+                </Button>
+                <Button
+                  variant="secondary"
+                  icon={<FileDown className="h-4 w-4" />}
+                  disabled={filteredRows.length === 0}
+                  onClick={() => exportColumnasToPdf(filteredRows)}
+                >
+                  Descargar .pdf
                 </Button>
               </div>
             </div>
