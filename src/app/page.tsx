@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ClipboardPlus, ListChecks } from 'lucide-react'
+import { ClipboardPlus, LayoutDashboard, ListChecks } from 'lucide-react'
 import { useRequireAuth } from '@/lib/auth'
 import UserBar from '@/components/auth/UserBar'
 import AppHeader from '@/components/layout/AppHeader'
@@ -22,7 +22,7 @@ export default function Home() {
         <p className="text-foreground/70">
           Carga de datos de verificación mecánica y eléctrica de columnas de alumbrado público.
         </p>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Link
             href="/ordenes/nueva"
             className="flex flex-col gap-3 rounded-fluent border border-border bg-surface p-6 shadow-sm transition-colors hover:border-accent hover:bg-surface-alt"
@@ -38,6 +38,14 @@ export default function Home() {
             <ListChecks className="h-8 w-8 text-accent" />
             <span className="text-base font-semibold text-foreground">Ver órdenes cargadas</span>
             <span className="text-sm text-foreground/60">Consultar y filtrar las órdenes existentes.</span>
+          </Link>
+          <Link
+            href="/dashboard"
+            className="flex flex-col gap-3 rounded-fluent border border-border bg-surface p-6 shadow-sm transition-colors hover:border-accent hover:bg-surface-alt"
+          >
+            <LayoutDashboard className="h-8 w-8 text-accent" />
+            <span className="text-base font-semibold text-foreground">Dashboard</span>
+            <span className="text-sm text-foreground/60">Estado general de las columnas inspeccionadas.</span>
           </Link>
         </div>
       </main>

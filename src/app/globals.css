@@ -13,6 +13,8 @@
   --accent-foreground: #ffffff;
   --success: #107c10;
   --success-surface: #dff6dd;
+  --warning: #9d5d00;
+  --warning-surface: #fff4ce;
   --danger: #d13438;
   --danger-surface: #fde7e9;
   --radius: 6px;
@@ -31,6 +33,8 @@
   --accent-foreground: #0a0a0a;
   --success: #6ccb5f;
   --success-surface: #123a1a;
+  --warning: #ffb944;
+  --warning-surface: #4d3800;
   --danger: #f1707b;
   --danger-surface: #3b1315;
 }
@@ -46,6 +50,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-success: var(--success);
   --color-success-surface: var(--success-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
   --color-danger: var(--danger);
   --color-danger-surface: var(--danger-surface);
   --radius-fluent: var(--radius);
