@@ -57,7 +57,7 @@ export default function OrdenesListPage() {
         const [ordenes, columnas] = await Promise.all([
           fetchSheetRows<OrdenRow>(CONFIG.ordenesCsvUrl, { numberFields: ['id'] }),
           fetchSheetRows<ColumnaRowDb>(CONFIG.columnasCsvUrl, {
-            numberFields: ['id', 'orden_servicio_id', 'altura'],
+            numberFields: ['id', 'orden_servicio_id'],
             booleanFields: CONDICION_FIELDS.map((f) => f.key),
           }),
         ])

@@ -12,7 +12,7 @@ export interface ColumnaInspeccionada {
   id: number
   orden_servicio_id: number
   calle: string
-  altura: number
+  altura: string
   n_columna: string
   tapa: boolean
   aplomada: boolean

@@ -24,7 +24,7 @@ export const CONDICION_FIELDS: { key: ConditionKey; label: string }[] = [
 export interface ColumnaRow {
   clientId: string
   calle: string
-  altura: number
+  altura: string
   n_columna: string
   tapa: boolean
   aplomada: boolean

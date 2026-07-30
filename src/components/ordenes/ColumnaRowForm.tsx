@@ -28,10 +28,8 @@ export default function ColumnaRowForm({ onAdd }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const handleAdd = () => {
-    const alturaNum = Number(altura)
-
-    if (!calle.trim() || !nColumna.trim() || !altura.trim() || !Number.isInteger(alturaNum) || alturaNum <= 0) {
-      setError('Completá calle, altura (número entero positivo) y N° de columna.')
+    if (!calle.trim() || !nColumna.trim() || !altura.trim()) {
+      setError('Completá calle, altura y N° de columna.')
       return
     }
 
@@ -39,7 +37,7 @@ export default function ColumnaRowForm({ onAdd }: Props) {
     onAdd({
       clientId: crypto.randomUUID(),
       calle: calle.trim(),
-      altura: alturaNum,
+      altura: altura.trim(),
       n_columna: nColumna.trim(),
       ...condiciones,
       observaciones: observaciones.trim(),
@@ -56,7 +54,6 @@ export default function ColumnaRowForm({ onAdd }: Props) {
         <TextField label="Calle" value={calle} onChange={(e) => setCalle(e.target.value)} placeholder="PELLEGRINI" />
         <TextField
           label="Altura"
-          type="number"
           value={altura}
           onChange={(e) => setAltura(e.target.value)}
           placeholder="2900"
