@@ -178,6 +178,16 @@ export function useSignOut() {
   }
 }
 
+// Google solo honra el callback del último initialize() invocado: si el
+// componente de login se remonta más de una vez en la misma carga de página
+// (se observó en producción, sobre todo cuando la red hacia Google es lenta)
+// un segundo initialize() deja "huérfano" el botón ya renderizado y su clic
+// no dispara ningún callback. Por eso initialize() se ejecuta una única vez
+// por carga de página (gsiClient) y activeCallbacks apunta siempre al último
+// montaje, para no invocar un onSuccess/onError de una instancia vieja.
+let gsiClient: GoogleIdentity | null = null
+let activeCallbacks: { onSuccess: () => void; onError: (message: string) => void } | null = null
+
 // Usado por la pantalla de login para renderizar el botón "Iniciar sesión
 // con Google" y resolver el perfil (hoja "Usuarios") cuando el usuario elige
 // una cuenta.
@@ -185,15 +195,22 @@ export async function renderGoogleButton(
   container: HTMLElement,
   callbacks: { onSuccess: () => void; onError: (message: string) => void }
 ): Promise<void> {
+  activeCallbacks = callbacks
   try {
     const google = await waitForGoogleIdentity()
-    google.accounts.id.initialize({
-      client_id: CONFIG.googleClientId,
-      auto_select: false,
-      callback: (response) => {
-        establishFromIdToken(response.credential).then(callbacks.onSuccess).catch((err: Error) => callbacks.onError(err.message))
-      },
-    })
+    if (!gsiClient) {
+      gsiClient = google
+      google.accounts.id.initialize({
+        client_id: CONFIG.googleClientId,
+        auto_select: false,
+        callback: (response) => {
+          establishFromIdToken(response.credential)
+            .then(() => activeCallbacks?.onSuccess())
+            .catch((err: Error) => activeCallbacks?.onError(err.message))
+        },
+      })
+    }
+    container.innerHTML = ''
     google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', text: 'signin_with', width: 320 })
   } catch (err) {
     callbacks.onError((err as Error).message)
