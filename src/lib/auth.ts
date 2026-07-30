@@ -105,7 +105,7 @@ async function establishFromIdToken(idToken: string): Promise<{ session: AuthSes
   const profile = await resolveProfile(decoded.email)
   if (!profile) {
     clearStoredAuth()
-    throw new Error('Tu cuenta no tiene acceso. Pedile a un administrador que te agregue a la hoja "Usuarios".')
+    throw new Error('Tu cuenta no tiene acceso".')
   }
 
   storeAuth({ idToken, email: decoded.email, exp: decoded.exp })
