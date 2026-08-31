@@ -230,8 +230,8 @@ export default function OrdenesListPage() {
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-foreground/60">
-                {filteredRows.length} de {rows.length} columnas
-                {zonaTotal !== null && ` · ${zonaTotal} en ${zonaFilter}`}
+                {filteredRows.length} de {zonaTotal ?? rows.length} columnas
+                {zonaActive && ` en ${zonaFilter}`}
               </p>
               <div className="flex gap-2">
                 <Button
