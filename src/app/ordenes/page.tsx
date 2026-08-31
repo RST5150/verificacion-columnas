@@ -123,6 +123,11 @@ export default function OrdenesListPage() {
     })
   }, [rows, search, fechaDesde, fechaHasta, zonaFilter, condicionFilters])
 
+  const zonaActive = zonaFilter !== 'todos'
+  const fechaActive = !!fechaDesde || !!fechaHasta
+  const isCondicionActive = (key: ConditionKey) => condicionFilters[key] !== 'todos'
+  const highlightClass = (active: boolean) => (active ? 'bg-success-surface' : '')
+
   const columnCount = 6 + CONDICION_FIELDS.length + 2
   const hasActiveFilters =
     !!search ||
@@ -304,13 +309,13 @@ export default function OrdenesListPage() {
                 <thead>
                   <tr className="bg-surface-alt text-left">
                     <th className="px-3 py-2 font-semibold">Orden</th>
-                    <th className="px-3 py-2 font-semibold">Fecha</th>
-                    <th className="px-3 py-2 font-semibold">Zona</th>
+                    <th className={`px-3 py-2 font-semibold ${highlightClass(fechaActive)}`}>Fecha</th>
+                    <th className={`px-3 py-2 font-semibold ${highlightClass(zonaActive)}`}>Zona</th>
                     <th className="px-3 py-2 font-semibold">Calle</th>
                     <th className="px-3 py-2 font-semibold">Altura</th>
                     <th className="px-3 py-2 font-semibold">N° columna</th>
                     {CONDICION_FIELDS.map((f) => (
-                      <th key={f.key} className="px-3 py-2 font-semibold">
+                      <th key={f.key} className={`px-3 py-2 font-semibold ${highlightClass(isCondicionActive(f.key))}`}>
                         {f.label}
                       </th>
                     ))}
@@ -322,15 +327,15 @@ export default function OrdenesListPage() {
                   {filteredRows.map((row, i) => (
                     <tr key={row.id} className={i % 2 === 1 ? 'bg-surface-alt/50' : ''}>
                       <td className="border-t border-border px-3 py-2">{row.orden?.orden_de_servicio}</td>
-                      <td className="border-t border-border px-3 py-2">
+                      <td className={`border-t border-border px-3 py-2 ${highlightClass(fechaActive)}`}>
                         {formatFechaDDMMAAAA(row.orden?.fecha)}
                       </td>
-                      <td className="border-t border-border px-3 py-2">{row.orden?.zona}</td>
+                      <td className={`border-t border-border px-3 py-2 ${highlightClass(zonaActive)}`}>{row.orden?.zona}</td>
                       <td className="border-t border-border px-3 py-2">{row.calle}</td>
                       <td className="border-t border-border px-3 py-2">{row.altura}</td>
                       <td className="border-t border-border px-3 py-2">{row.n_columna}</td>
                       {CONDICION_FIELDS.map((f) => (
-                        <td key={f.key} className="border-t border-border px-3 py-2">
+                        <td key={f.key} className={`border-t border-border px-3 py-2 ${highlightClass(isCondicionActive(f.key))}`}>
                           <StatusBadge value={row[f.key]} />
                         </td>
                       ))}
