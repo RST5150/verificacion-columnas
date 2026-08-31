@@ -124,6 +124,7 @@ export default function OrdenesListPage() {
   }, [rows, search, fechaDesde, fechaHasta, zonaFilter, condicionFilters])
 
   const zonaActive = zonaFilter !== 'todos'
+  const zonaTotal = zonaActive ? rows.filter((r) => r.orden?.zona === zonaFilter).length : null
   const fechaActive = !!fechaDesde || !!fechaHasta
   const isCondicionActive = (key: ConditionKey) => condicionFilters[key] !== 'todos'
   const highlightClass = (active: boolean) => (active ? 'bg-success-surface' : '')
@@ -230,6 +231,7 @@ export default function OrdenesListPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-foreground/60">
                 {filteredRows.length} de {rows.length} columnas
+                {zonaTotal !== null && ` · ${zonaTotal} en ${zonaFilter}`}
               </p>
               <div className="flex gap-2">
                 <Button
