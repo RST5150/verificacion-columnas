@@ -246,10 +246,16 @@ export default function OrdenesListPage() {
         ) : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-foreground/60">
-                {filteredRows.length} de {zonaTotal ?? rows.length} columnas
-                {zonaActive && ` en ${zonaFilter}`}
-              </p>
+              <div className="flex flex-wrap items-center gap-4">
+                <p className="text-sm text-foreground/60">
+                  {filteredRows.length} de {zonaTotal ?? rows.length} columnas
+                  {zonaActive && ` en ${zonaFilter}`}
+                </p>
+                <span className="inline-flex items-center gap-1.5 text-xs text-foreground/60">
+                  <span className="h-3 w-3 rounded-sm bg-warning-surface" />
+                  Orden fuera del plan de verificación técnica
+                </span>
+              </div>
               <div className="flex gap-2">
                 <Button
                   variant="secondary"
