@@ -131,11 +131,10 @@ export default function OrdenesListPage() {
   const isCondicionActive = (key: ConditionKey) => condicionFilters[key] !== 'todos'
   const highlightClass = (active: boolean) => (active ? 'bg-success-surface' : '')
 
-  // Color de fila según el plan de verificación técnica de la orden: azul
-  // para las que sí son del plan, ámbar para las que no, sin marcar cuando
-  // la orden es de antes de que existiera este dato (null).
+  // Color de fila según el plan de verificación técnica de la orden: ámbar
+  // para las que NO son del plan; las que sí son del plan quedan sin marcar,
+  // igual que las órdenes de antes de que existiera este dato (null).
   const rowPlanClass = (row: ColumnaConOrden) => {
-    if (row.orden?.es_plan === true) return 'bg-accent/10 dark:bg-accent/25'
     if (row.orden?.es_plan === false) return 'bg-warning-surface/60'
     return ''
   }
