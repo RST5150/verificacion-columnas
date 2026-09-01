@@ -44,6 +44,7 @@ export default function OrdenesListPage() {
   const [fechaDesde, setFechaDesde] = useState('')
   const [fechaHasta, setFechaHasta] = useState('')
   const [zonaFilter, setZonaFilter] = useState('todos')
+  const [esPlanFilter, setEsPlanFilter] = useState('todos')
   const [condicionFilters, setCondicionFilters] = useState(emptyCondicionFilters)
 
   useEffect(() => {
@@ -109,6 +110,7 @@ export default function OrdenesListPage() {
       }
 
       if (zonaFilter !== 'todos' && row.orden?.zona !== zonaFilter) return false
+      if (esPlanFilter !== 'todos' && row.orden?.es_plan !== (esPlanFilter === 'si')) return false
 
       if (fechaDesde && (!row.orden?.fecha || row.orden.fecha < fechaDesde)) return false
       if (fechaHasta && (!row.orden?.fecha || row.orden.fecha > fechaHasta)) return false
@@ -121,7 +123,7 @@ export default function OrdenesListPage() {
 
       return true
     })
-  }, [rows, search, fechaDesde, fechaHasta, zonaFilter, condicionFilters])
+  }, [rows, search, fechaDesde, fechaHasta, zonaFilter, esPlanFilter, condicionFilters])
 
   const zonaActive = zonaFilter !== 'todos'
   const zonaTotal = zonaActive ? rows.filter((r) => r.orden?.zona === zonaFilter).length : null
@@ -129,12 +131,22 @@ export default function OrdenesListPage() {
   const isCondicionActive = (key: ConditionKey) => condicionFilters[key] !== 'todos'
   const highlightClass = (active: boolean) => (active ? 'bg-success-surface' : '')
 
+  // Color de fila según el plan de verificación técnica de la orden: azul
+  // para las que sí son del plan, ámbar para las que no, sin marcar cuando
+  // la orden es de antes de que existiera este dato (null).
+  const rowPlanClass = (row: ColumnaConOrden) => {
+    if (row.orden?.es_plan === true) return 'bg-accent/10 dark:bg-accent/25'
+    if (row.orden?.es_plan === false) return 'bg-warning-surface/60'
+    return ''
+  }
+
   const columnCount = 6 + CONDICION_FIELDS.length + 2
   const hasActiveFilters =
     !!search ||
     !!fechaDesde ||
     !!fechaHasta ||
     zonaFilter !== 'todos' ||
+    esPlanFilter !== 'todos' ||
     Object.values(condicionFilters).some((v) => v !== 'todos')
 
   const clearFilters = () => {
@@ -142,6 +154,7 @@ export default function OrdenesListPage() {
     setFechaDesde('')
     setFechaHasta('')
     setZonaFilter('todos')
+    setEsPlanFilter('todos')
     setCondicionFilters(emptyCondicionFilters)
   }
 
@@ -192,6 +205,11 @@ export default function OrdenesListPage() {
                 value={fechaHasta}
                 onChange={(e) => setFechaHasta(e.target.value)}
               />
+              <Select label="Plan de verificación técnica" value={esPlanFilter} onChange={(e) => setEsPlanFilter(e.target.value)}>
+                <option value="todos">Todos</option>
+                <option value="si">Sí</option>
+                <option value="no">No</option>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -327,7 +345,7 @@ export default function OrdenesListPage() {
                 </thead>
                 <tbody>
                   {filteredRows.map((row, i) => (
-                    <tr key={row.id} className={i % 2 === 1 ? 'bg-surface-alt/50' : ''}>
+                    <tr key={row.id} className={rowPlanClass(row) || (i % 2 === 1 ? 'bg-surface-alt/50' : '')}>
                       <td className="border-t border-border px-3 py-2">{row.orden?.orden_de_servicio}</td>
                       <td className={`border-t border-border px-3 py-2 ${highlightClass(fechaActive)}`}>
                         {formatFechaDDMMAAAA(row.orden?.fecha)}
