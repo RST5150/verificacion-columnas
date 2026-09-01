@@ -23,6 +23,11 @@ const HEADERS = [
   'Observaciones',
 ]
 
+function formatCondicion(value: boolean | null): string {
+  if (value === null) return '-'
+  return value ? 'Sí' : 'No'
+}
+
 function rowsToAoa(rows: ColumnaConOrden[]): (string | number)[][] {
   const body = rows.map((row) => [
     row.orden?.orden_de_servicio ?? '',
@@ -31,7 +36,7 @@ function rowsToAoa(rows: ColumnaConOrden[]): (string | number)[][] {
     row.calle,
     row.altura,
     row.n_columna,
-    ...CONDICION_FIELDS.map((f) => (row[f.key] ? 'Sí' : 'No')),
+    ...CONDICION_FIELDS.map((f) => formatCondicion(row[f.key])),
     row.observaciones ?? '',
   ])
 

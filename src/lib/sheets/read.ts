@@ -13,9 +13,12 @@ function normalizeRow(row: Record<string, unknown>): Record<string, unknown> {
   return result
 }
 
-function toBoolean(value: unknown): boolean {
+// Una celda vacía es "sin dato" (no se registró esa inspección), distinto
+// de un NO explícito — se preserva como null en vez de forzarla a false.
+function toBoolean(value: unknown): boolean | null {
   if (typeof value === 'boolean') return value
   const normalized = String(value ?? '').trim().toLowerCase()
+  if (normalized === '') return null
   return normalized === 'true' || normalized === 'verdadero' || normalized === 'si' || normalized === 'sí' || normalized === '1'
 }
 

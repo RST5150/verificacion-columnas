@@ -7,9 +7,11 @@ import type { ColumnaInspeccionada, OrdenServicio } from '@/types/sheets'
 // los 9 ítems en un solo gráfico sin que la dirección semántica confunda.
 const BAD_WHEN_TRUE: ReadonlySet<ConditionKey> = new Set(['oxidada', 'picada_por_oxido', 'perforada_desprendimiento'])
 
+// Sin dato (null) no cuenta como "bien": solo un SI explícito en los campos
+// normales, o un NO explícito en los BAD_WHEN_TRUE, suma al %.
 export function isBienField(key: ConditionKey, row: Pick<ColumnaInspeccionada, ConditionKey>): boolean {
   const value = row[key]
-  return BAD_WHEN_TRUE.has(key) ? !value : value
+  return BAD_WHEN_TRUE.has(key) ? value === false : value === true
 }
 
 export function esReparada(observaciones: string | null | undefined): boolean {

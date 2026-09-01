@@ -1,10 +1,19 @@
-import { Check, X } from 'lucide-react'
+import { Check, Minus, X } from 'lucide-react'
 
 interface Props {
-  value: boolean
+  value: boolean | null
 }
 
 export default function StatusBadge({ value }: Props) {
+  if (value === null) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-surface-alt px-2 py-0.5 text-xs font-semibold text-foreground/50">
+        <Minus className="h-3 w-3" />
+        {'-'}
+      </span>
+    )
+  }
+
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
