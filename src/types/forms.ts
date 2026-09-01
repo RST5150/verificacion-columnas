@@ -51,6 +51,7 @@ export const ZONA_OPTIONS = ['Zona 1', 'Zona 2', 'Zona 3'] as const
 
 export interface FooterDraft {
   zona: string
+  es_plan: boolean
 }
 
 export const emptyHeader: HeaderDraft = {
@@ -60,4 +61,5 @@ export const emptyHeader: HeaderDraft = {
 
 export const emptyFooter: FooterDraft = {
   zona: '',
+  es_plan: false,
 }

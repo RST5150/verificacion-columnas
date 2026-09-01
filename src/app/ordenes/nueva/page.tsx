@@ -64,6 +64,7 @@ export default function NuevaOrdenPage() {
           localidad: LOCALIDAD_FIJA,
           fecha: header.fecha,
           zona: footer.zona,
+          es_plan: footer.es_plan,
         },
         columnas: rows.map((r) => ({
           calle: r.calle,

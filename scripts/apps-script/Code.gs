@@ -94,7 +94,7 @@ function createOrdenConColumnas(email, orden, columnas) {
   var now = new Date().toISOString();
 
   var ordenId = nextId(ordenesSheet);
-  ordenesSheet.appendRow([ordenId, orden.orden_de_servicio, orden.localidad, orden.fecha, orden.zona, email, now]);
+  ordenesSheet.appendRow([ordenId, orden.orden_de_servicio, orden.localidad, orden.fecha, orden.zona, !!orden.es_plan, email, now]);
 
   (columnas || []).forEach(function (c) {
     var columnaId = nextId(columnasSheet);

@@ -48,7 +48,7 @@ export default function DashboardPage() {
       setError(null)
       try {
         const [ordenesRows, columnasRows] = await Promise.all([
-          fetchSheetRows<OrdenServicio>(CONFIG.ordenesCsvUrl, { numberFields: ['id'] }),
+          fetchSheetRows<OrdenServicio>(CONFIG.ordenesCsvUrl, { numberFields: ['id'], booleanFields: ['es_plan'] }),
           fetchSheetRows<ColumnaInspeccionada>(CONFIG.columnasCsvUrl, {
             numberFields: ['id', 'orden_servicio_id'],
             booleanFields: CONDICION_FIELDS.map((f) => f.key),

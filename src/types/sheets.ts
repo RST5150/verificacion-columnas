@@ -4,6 +4,9 @@ export interface OrdenServicio {
   localidad: string
   fecha: string
   zona: string | null
+  // No existe en las ordenes cargadas antes de agregar esta columna al
+  // Sheet: llega null (sin dato), no false, para esas filas historicas.
+  es_plan: boolean | null
   created_by: string | null
   created_at: string
 }
