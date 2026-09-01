@@ -11,10 +11,10 @@ interface Props {
   onAdd: (row: ColumnaRow) => void
 }
 
-type Condiciones = Record<ConditionKey, boolean>
+type Condiciones = Record<ConditionKey, boolean | null>
 
 const emptyCondiciones: Condiciones = Object.fromEntries(
-  CONDICION_FIELDS.map((f) => [f.key, false])
+  CONDICION_FIELDS.map((f) => [f.key, null])
 ) as Condiciones
 
 export default function ColumnaRowForm({ onAdd }: Props) {

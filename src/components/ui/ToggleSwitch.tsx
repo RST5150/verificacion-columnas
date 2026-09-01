@@ -1,30 +1,37 @@
 interface Props {
   label: string
-  value: boolean
-  onChange: (value: boolean) => void
+  value: boolean | null
+  onChange: (value: boolean | null) => void
 }
 
+const OPTIONS: { value: boolean | null; text: string; activeClass: string }[] = [
+  { value: true, text: 'Sí', activeClass: 'bg-success-surface text-success' },
+  { value: false, text: 'No', activeClass: 'bg-danger-surface text-danger' },
+  { value: null, text: '—', activeClass: 'bg-surface-alt text-foreground/70' },
+]
+
+// Tres estados en vez de un switch binario: una inspección nueva también
+// puede quedar sin ese dato relevado, no solo SI/NO.
 export default function ToggleSwitch({ label, value, onChange }: Props) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-fluent border border-border px-3 py-2 text-sm">
       <span className="text-foreground/80">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={value}
-        aria-label={label}
-        onClick={() => onChange(!value)}
-        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-          value ? 'bg-accent' : 'bg-border'
-        }`}
-      >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-surface shadow transition-transform ${
-            value ? 'translate-x-6' : 'translate-x-1'
-          }`}
-        />
-      </button>
-      <span className="w-6 text-xs font-medium text-foreground/60">{value ? 'Sí' : 'No'}</span>
+      <div role="radiogroup" aria-label={label} className="flex gap-1">
+        {OPTIONS.map((opt) => (
+          <button
+            key={String(opt.value)}
+            type="button"
+            role="radio"
+            aria-checked={value === opt.value}
+            onClick={() => onChange(opt.value)}
+            className={`min-w-[2.25rem] rounded-full px-2 py-1 text-xs font-semibold transition-colors ${
+              value === opt.value ? opt.activeClass : 'text-foreground/40 hover:bg-surface-alt'
+            }`}
+          >
+            {opt.text}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

@@ -26,15 +26,15 @@ export interface ColumnaRow {
   calle: string
   altura: string
   n_columna: string
-  tapa: boolean
-  aplomada: boolean
-  pintura: boolean
-  oxidada: boolean
-  picada_por_oxido: boolean
-  perforada_desprendimiento: boolean
-  pat: boolean
-  prot_diferencial: boolean
-  prot_contacto_directo: boolean
+  tapa: boolean | null
+  aplomada: boolean | null
+  pintura: boolean | null
+  oxidada: boolean | null
+  picada_por_oxido: boolean | null
+  perforada_desprendimiento: boolean | null
+  pat: boolean | null
+  prot_diferencial: boolean | null
+  prot_contacto_directo: boolean | null
   observaciones: string
 }
 
