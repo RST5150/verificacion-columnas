@@ -26,12 +26,22 @@ export interface CondicionStat {
   total: number
 }
 
+export interface CondicionSiNoNulo {
+  key: ConditionKey
+  label: string
+  si: number
+  no: number
+  nulo: number
+  total: number
+}
+
 export interface DashboardData {
   totalColumnas: number
   totalOrdenes: number
   totalReparadas: number
   pctBienPromedio: number
   porCondicion: CondicionStat[]
+  porCondicionSiNoNulo: CondicionSiNoNulo[]
   porZona: { zona: string; count: number }[]
 }
 
@@ -75,6 +85,12 @@ export function buildDashboardData(
   const pctBienPromedio =
     porCondicion.length === 0 ? 0 : porCondicion.reduce((sum, c) => sum + c.pctBien, 0) / porCondicion.length
 
+  const porCondicionSiNoNulo: CondicionSiNoNulo[] = CONDICION_FIELDS.map((f) => {
+    const si = filtered.filter((row) => row[f.key] === true).length
+    const no = filtered.filter((row) => row[f.key] === false).length
+    return { key: f.key, label: f.label, si, no, nulo: totalColumnas - si - no, total: totalColumnas }
+  })
+
   const zonaCounts = new Map<string, number>()
   for (const c of filtered) {
     const zona = ordenesById.get(c.orden_servicio_id)?.zona ?? 'Sin zona'
@@ -84,5 +100,5 @@ export function buildDashboardData(
     .map(([zona, count]) => ({ zona, count }))
     .sort((a, b) => b.count - a.count)
 
-  return { totalColumnas, totalOrdenes, totalReparadas, pctBienPromedio, porCondicion, porZona }
+  return { totalColumnas, totalOrdenes, totalReparadas, pctBienPromedio, porCondicion, porCondicionSiNoNulo, porZona }
 }

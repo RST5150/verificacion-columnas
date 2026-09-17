@@ -14,6 +14,7 @@ import TextField from '@/components/ui/TextField'
 import InfoTooltip from '@/components/ui/InfoTooltip'
 import StatTile from '@/components/dashboard/StatTile'
 import HorizontalBarChart from '@/components/dashboard/HorizontalBarChart'
+import StackedBarChart from '@/components/dashboard/StackedBarChart'
 import VerticalBarChart from '@/components/dashboard/VerticalBarChart'
 import { CONDICION_FIELDS, ZONA_OPTIONS } from '@/types/forms'
 import { buildDashboardData } from '@/lib/dashboard'
@@ -170,6 +171,32 @@ export default function DashboardPage() {
                     }
                   })}
                 />
+              )}
+            </Card>
+
+            <Card
+              title={
+                <span className="inline-flex items-center gap-1">
+                  Sí / No / Sin dato por ítem de inspección
+                  <InfoTooltip text="Para cada aspecto revisado, cuántas columnas tienen SI, cuántas NO y cuántas quedaron sin dato (no inspeccionado en ese punto), sin importar si SI significa bien o mal para ese ítem." />
+                </span>
+              }
+            >
+              <div className="mb-3 flex flex-wrap gap-4 text-xs text-foreground/60">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: 'var(--accent)' }} /> Sí
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-foreground/30" /> No
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block h-2.5 w-2.5 rounded-full bg-foreground/10" /> Sin dato
+                </span>
+              </div>
+              {data.totalColumnas === 0 ? (
+                <p className="text-sm text-foreground/60">No hay columnas para los filtros seleccionados.</p>
+              ) : (
+                <StackedBarChart labelWidth={210} items={data.porCondicionSiNoNulo} />
               )}
             </Card>
 
