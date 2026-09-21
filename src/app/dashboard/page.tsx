@@ -223,6 +223,29 @@ export default function DashboardPage() {
               )}
             </Card>
 
+            <Card
+              title={
+                <span className="inline-flex items-center gap-1">
+                  Columnas reparadas
+                  <InfoTooltip text="Cuántas columnas tienen la palabra 'reparada' en sus observaciones, frente a las que no." />
+                </span>
+              }
+            >
+              {data.totalColumnas === 0 ? (
+                <p className="text-sm text-foreground/60">No hay datos para los filtros seleccionados.</p>
+              ) : (
+                <VerticalBarChart
+                  maxValue={Math.max(...data.porReparada.map((r) => r.count))}
+                  items={data.porReparada.map((r) => ({
+                    key: r.label,
+                    label: r.label,
+                    value: r.count,
+                    displayValue: r.count.toLocaleString('es-AR'),
+                  }))}
+                />
+              )}
+            </Card>
+
             <p className="text-sm text-foreground/60">
               Para ver el detalle fila por fila,{' '}
               <a href="/ordenes" className="text-accent hover:underline">

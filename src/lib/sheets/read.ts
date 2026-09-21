@@ -35,7 +35,8 @@ export async function fetchSheetRows<T>(url: string, options: ParseOptions = {})
   if (!res.ok) throw new Error('No se pudo cargar la planilla. Verificá que esté publicada como CSV.')
 
   const text = await res.text()
-  const workbook = XLSX.read(text, { type: 'string' })
+  // raw: true evita que XLSX interprete "2026-07-13" como fecha y la devuelva corrida ("7/12/26").
+  const workbook = XLSX.read(text, { type: 'string', raw: true })
   const sheet = workbook.Sheets[workbook.SheetNames[0]]
   const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { raw: false, defval: '' })
 
