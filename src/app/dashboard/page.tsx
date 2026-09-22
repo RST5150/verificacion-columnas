@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Check, TriangleAlert, X } from 'lucide-react'
 import { CONFIG } from '@/lib/config'
 import { fetchSheetRows } from '@/lib/sheets/read'
 import { useRequireAuth } from '@/lib/auth'
@@ -13,7 +12,6 @@ import Select from '@/components/ui/Select'
 import TextField from '@/components/ui/TextField'
 import InfoTooltip from '@/components/ui/InfoTooltip'
 import StatTile from '@/components/dashboard/StatTile'
-import HorizontalBarChart from '@/components/dashboard/HorizontalBarChart'
 import StackedBarChart from '@/components/dashboard/StackedBarChart'
 import VerticalBarChart from '@/components/dashboard/VerticalBarChart'
 import { CONDICION_FIELDS, ZONA_OPTIONS } from '@/types/forms'
@@ -21,14 +19,6 @@ import { buildDashboardData } from '@/lib/dashboard'
 import type { OrdenServicio, ColumnaInspeccionada } from '@/types/sheets'
 
 export const dynamic = 'force-dynamic'
-
-const STATUS_THRESHOLDS = { bien: 90, atencion: 70 }
-
-function statusFor(pct: number): { color: string; Icon: typeof Check; label: string } {
-  if (pct >= STATUS_THRESHOLDS.bien) return { color: 'var(--success)', Icon: Check, label: 'Bien' }
-  if (pct >= STATUS_THRESHOLDS.atencion) return { color: 'var(--warning)', Icon: TriangleAlert, label: 'Atención' }
-  return { color: 'var(--danger)', Icon: X, label: 'Crítico' }
-}
 
 export default function DashboardPage() {
   const { session, profile, loading: authLoading, error: authError } = useRequireAuth()
@@ -131,48 +121,6 @@ export default function DashboardPage() {
                 info="Qué porcentaje de las columnas están, en promedio, en condiciones correctas: sin daños, con sus protecciones eléctricas y en buen estado general."
               />
             </div>
-
-            <Card
-              title={
-                <span className="inline-flex items-center gap-1">
-                  Estado por ítem de inspección
-                  <InfoTooltip text="Para cada aspecto revisado (tapa, pintura, oxidación, protecciones eléctricas, etc.), qué porcentaje de las columnas está en condiciones correctas en ese punto." />
-                </span>
-              }
-            >
-              <div className="mb-3 flex flex-wrap gap-4 text-xs text-foreground/60">
-                <span className="inline-flex items-center gap-1">
-                  <Check className="h-3.5 w-3.5" style={{ color: 'var(--success)' }} /> ≥{STATUS_THRESHOLDS.bien}% bien
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <TriangleAlert className="h-3.5 w-3.5" style={{ color: 'var(--warning)' }} /> {STATUS_THRESHOLDS.atencion}
-                  {'–'}
-                  {STATUS_THRESHOLDS.bien - 1}% atención
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  <X className="h-3.5 w-3.5" style={{ color: 'var(--danger)' }} /> {'<'}
-                  {STATUS_THRESHOLDS.atencion}% crítico
-                </span>
-              </div>
-              {data.totalColumnas === 0 ? (
-                <p className="text-sm text-foreground/60">No hay columnas para los filtros seleccionados.</p>
-              ) : (
-                <HorizontalBarChart
-                  labelWidth={210}
-                  maxValue={100}
-                  items={data.porCondicion.map((c) => {
-                    const status = statusFor(c.pctBien)
-                    return {
-                      key: c.key,
-                      label: c.label,
-                      value: c.pctBien,
-                      displayValue: `${c.pctBien.toFixed(0)}%`,
-                      color: status.color,
-                    }
-                  })}
-                />
-              )}
-            </Card>
 
             <Card
               title={
